@@ -1,6 +1,10 @@
 # JF HealthCalc
 Aplicativo para cálculo de IMC, quantidades de calorias a serem consumidas por dia e monitoramento de calorias
 
+![cal](https://github.com/user-attachments/assets/3e9707be-097e-426f-b962-55bfbb2ac09a)
+
+![alimento](https://github.com/user-attachments/assets/9b1b42b6-3dc1-4a71-910c-85366b17c639)
+
 # Integrantes
 - João Vitor Queiroz de Campos Pires
 - Luiz Fernando Mattos
