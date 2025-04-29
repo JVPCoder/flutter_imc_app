@@ -5,7 +5,7 @@ Aplicativo para cálculo de IMC, quantidades de calorias a serem consumidas por 
 
 ![alimento](https://github.com/user-attachments/assets/9b1b42b6-3dc1-4a71-910c-85366b17c639)
 
-# Integrantes!
+# Integrantes
 - João Vitor Pires
 - Luiz Fernando Mattos
 
