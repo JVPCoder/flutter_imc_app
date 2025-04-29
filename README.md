@@ -2,8 +2,9 @@
 Aplicativo para cálculo de IMC, quantidades de calorias a serem consumidas por dia e monitoramento de calorias
 
 # Integrantes
-- João Vitor Pires
+- João Vitor Queiroz de Campos Pires
 - Luiz Fernando Mattos
+- **OBS:** Não ouve divisão específica de quem faz o que, sempre consultamos um ao outro para tomar cada passo no projeto, feito em conjunto e respeitando o tempo disponível de cada um.
 
 
 # Como rodar a aplicação
