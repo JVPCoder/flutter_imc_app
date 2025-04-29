@@ -86,8 +86,6 @@ Durante a execução no terminal, você pode usar comandos:
 ## 📚 Referências
 
 - Documentação Flutter CLI: https://docs.flutter.dev/reference/flutter-cli
-- Comandos Flutter: https://docs.flutter.dev/tools/flutter-cli
-
 ---
 
 Pronto! Agora você sabe como rodar projetos Flutter direto do terminal! 💻🚀
