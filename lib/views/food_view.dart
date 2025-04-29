@@ -59,16 +59,16 @@ class _FoodViewState extends State<FoodView> {
             SizedBox(height: 30), // Espaçamento entre ícone e inputs
 
             // Input Nome do Alimento
-            buildTextField(nomeController, 'Nome do alimento', Icons.fastfood),
+            buildTextField(nomeController, 'Nome do alimento', Icons.fastfood, false),
             SizedBox(height: 15),
 
             // Input Calorias por unidade
-            buildTextField(calController, 'Calorias por unidade', Icons.local_fire_department),
+            buildTextField(calController, 'Calorias por unidade', Icons.local_fire_department, true),
             SizedBox(height: 15),
 
             // Input Quantidade
-            buildTextField(qtdController, 'Quantidade', Icons.numbers),
-            SizedBox(height: 20),
+            buildTextField(qtdController, 'Quantidade', Icons.numbers, true),
+            SizedBox(height: 15),
 
             // Botão para adicionar alimento
             ElevatedButton.icon(
@@ -82,7 +82,7 @@ class _FoodViewState extends State<FoodView> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 7),
 
             // Lista de alimentos
             Expanded(
@@ -106,7 +106,7 @@ class _FoodViewState extends State<FoodView> {
                       },
                     ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 1),
 
             // Total de calorias consumidas
             Text(
@@ -119,10 +119,10 @@ class _FoodViewState extends State<FoodView> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget buildTextField(TextEditingController controller, String label, IconData icon, bool number) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: number ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
