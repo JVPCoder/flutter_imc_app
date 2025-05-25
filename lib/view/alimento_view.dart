@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
+import '../model/alimento.dart';
 
-class Alimento {
-  final String nome;
-  final double caloriasPorUnidade;
-  final int quantidade;
+class AlimentoView extends StatefulWidget {
+  const AlimentoView({super.key});
 
-  Alimento({required this.nome, required this.caloriasPorUnidade, required this.quantidade});
-
-  double get totalCalorias => caloriasPorUnidade * quantidade;
-}
-
-class FoodView extends StatefulWidget {
   @override
-  State<FoodView> createState() => _FoodViewState();
+  State<AlimentoView> createState() => _AlimentoViewState();
 }
 
-class _FoodViewState extends State<FoodView> {
+class _AlimentoViewState extends State<AlimentoView> {
   final nomeController = TextEditingController();
   final calController = TextEditingController();
   final qtdController = TextEditingController();
-  final List<Alimento> alimentos = [];
+  final List<Alimento> _alimentoList = [];
 
   void adicionar() {
     final nome = nomeController.text;
@@ -29,7 +22,7 @@ class _FoodViewState extends State<FoodView> {
     if (nome.isEmpty || cal <= 0 || qtd <= 0) return;
 
     setState(() {
-      alimentos.add(Alimento(nome: nome, caloriasPorUnidade: cal, quantidade: qtd));
+      _alimentoList.add(Alimento(nome: nome, caloriasPorUnidade: cal, quantidade: qtd));
       nomeController.clear();
       calController.clear();
       qtdController.clear();
@@ -37,7 +30,7 @@ class _FoodViewState extends State<FoodView> {
   }
 
   double calcularTotal() {
-    return alimentos.fold(0, (soma, a) => soma + a.totalCalorias);
+    return _alimentoList.fold(0, (soma, alimento) => soma + alimento.totalCalorias);
   }
 
   @override
@@ -86,12 +79,12 @@ class _FoodViewState extends State<FoodView> {
 
             // Lista de alimentos
             Expanded(
-              child: alimentos.isEmpty
+              child: _alimentoList.isEmpty
                   ? Center(child: Text('Nenhum alimento adicionado.', style: TextStyle(color: Colors.black),))
                   : ListView.builder(
-                      itemCount: alimentos.length,
+                      itemCount: _alimentoList.length,
                       itemBuilder: (_, i) {
-                        final a = alimentos[i];
+                        final a = _alimentoList[i];
                         return Card(
                           elevation: 2,
                           child: ListTile(
@@ -99,7 +92,7 @@ class _FoodViewState extends State<FoodView> {
                             subtitle: Text('${a.totalCalorias.toStringAsFixed(2)} kcal'),
                             trailing: IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => setState(() => alimentos.removeAt(i)),
+                              onPressed: () => setState(() => _alimentoList.removeAt(i)),
                             ),
                           ),
                         );

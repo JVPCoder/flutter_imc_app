@@ -1,37 +1,38 @@
 import 'package:flutter/material.dart';
-import '../controllers/imc_controller.dart';
+import 'package:flutter_imc_app/model/registro_calculo_imc.dart';
+import 'package:flutter_imc_app/viewmodel/imc_viewmodel.dart';
 
 class IMCView extends StatefulWidget {
+  const IMCView({super.key});
+
   @override
   State<IMCView> createState() => _IMCViewState();
 }
 
 class _IMCViewState extends State<IMCView> {
-  final pesoController = TextEditingController();
-  final alturaController = TextEditingController();
-  final controller = IMCController();
+  final _pesoController = TextEditingController();
+  final _alturaController = TextEditingController();
+  String _resultadoIMC = '';
+  String _statusIMC = '';
 
-  String resultadoIMC = '';
-  String classificacao = '';
+  final imcVM = IMCViewModel();
 
-  void calcularIMC() {
-    final peso = double.tryParse(pesoController.text) ?? 0;
-    final altura = double.tryParse(alturaController.text) ?? 0;
+  void handleCalcularIMC() {
+    final peso = double.tryParse(_pesoController.text) ?? 0;
+    final altura = double.tryParse(_alturaController.text) ?? 0;
 
     if (peso <= 0 || altura <= 0) {
       setState(() {
-        resultadoIMC = 'Insira valores válidos';
-        classificacao = '';
+        _resultadoIMC = 'Insira valores válidos';
       });
       return;
     }
 
-    final imc = controller.calcularIMC(peso, altura);
-    final status = controller.classificarIMC(peso, altura);
+    RegistroCalculoImc registroIMC = imcVM.calcularIMC(peso, altura);
 
     setState(() {
-      resultadoIMC = 'Seu IMC é: ${imc.toStringAsFixed(2)}';
-      classificacao = status;
+      _resultadoIMC = 'Seu IMC é: ${registroIMC.imc.toStringAsFixed(2)}';
+      _statusIMC = registroIMC.statusIMC;
     });
   }
 
@@ -51,7 +52,7 @@ class _IMCViewState extends State<IMCView> {
             Icon(Icons.monitor_weight, size: 80, color: Colors.green.shade700),
             SizedBox(height: 20),
             TextField(
-              controller: pesoController,
+              controller: _pesoController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Peso (kg)',
@@ -61,7 +62,7 @@ class _IMCViewState extends State<IMCView> {
             ),
             SizedBox(height: 20),
             TextField(
-              controller: alturaController,
+              controller: _alturaController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'Altura (cm)',
@@ -71,7 +72,7 @@ class _IMCViewState extends State<IMCView> {
             ),
             SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: calcularIMC,
+              onPressed: handleCalcularIMC,
               icon: Icon(Icons.calculate),
               label: Text('Calcular IMC'),
               style: ElevatedButton.styleFrom(
@@ -84,11 +85,11 @@ class _IMCViewState extends State<IMCView> {
               ),
             ),
             SizedBox(height: 40),
-            if (resultadoIMC.isNotEmpty)
+            if (_resultadoIMC.isNotEmpty)
               Column(
                 children: [
                   Text(
-                    resultadoIMC,
+                    _resultadoIMC,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -98,7 +99,7 @@ class _IMCViewState extends State<IMCView> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    classificacao,
+                    _statusIMC,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
