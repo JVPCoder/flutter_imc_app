@@ -1,12 +1,29 @@
 import 'package:flutter_imc_app/model/enum/sexo.dart';
+import 'package:flutter_imc_app/model/registro_calculo_tmb.dart';
+
+import '../model/enum/atividade.dart';
 
 class TMBViewModel {
-  double calcularTMB(double peso, double altura, int idade, Sexo sexo) {
+  RegistroCalculoTMB calcularTMB(double peso, double altura, int idade, Sexo sexo, Atividade atividade) {
+    double tmb = 0;
     if(sexo == Sexo.masculino) {
-      return 88.36 + (13.34 * peso) + (4.8 * altura * 100) - (5.7 * idade);
+      tmb = 66 + (13.7 * peso) + (5 * altura) - (6.8 * idade);
+    } else {
+      // Feminino
+      tmb = 655 + (9.6 * peso) + (1.8 * altura) - (4.7 * idade);
     }
 
-    // Feminino
-    return 447.6 + (9.2 * peso) + (3.1 * altura * 100) - (4.3 * idade);
+    double totalCalorias = tmb * atividade.valor;
+
+    return RegistroCalculoTMB(
+        peso: peso,
+        altura: altura,
+        idade: idade,
+        sexo: sexo,
+        atividade: atividade,
+        tmb: tmb,
+        totalCalorias: totalCalorias,
+        dataCalculo: DateTime.now()
+    );
   }
 }

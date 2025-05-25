@@ -1,36 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_imc_app/model/enum/atividade.dart';
+import 'package:flutter_imc_app/model/registro_calculo_tmb.dart';
+import 'package:flutter_imc_app/viewmodel/tmb_viewmodel.dart';
 
-class CalorieView extends StatefulWidget {
+import '../model/enum/sexo.dart';
+
+class CaloriaView extends StatefulWidget {
+  const CaloriaView({super.key});
+
   @override
-  State<CalorieView> createState() => _CalorieViewState();
+  State<CaloriaView> createState() => _CaloriaViewState();
 }
 
-class _CalorieViewState extends State<CalorieView> {
-  final pesoController = TextEditingController();
-  final alturaController = TextEditingController();
-  final idadeController = TextEditingController();
+class _CaloriaViewState extends State<CaloriaView> {
+  final _pesoController = TextEditingController();
+  final _alturaController = TextEditingController();
+  final _idadeController = TextEditingController();
+  final tmbVM = TMBViewModel();
+  Sexo _sexo = Sexo.masculino;
+  Atividade _atividade = Atividade.sedentario;
 
-  String sexo = 'Masculino';
-  double atividade = 1.2;
-  String resultado = '';
+  String _resultado = '';
 
-  void calcularCalorias() {
-    final peso = double.tryParse(pesoController.text) ?? 0;
-    final altura = double.tryParse(alturaController.text) ?? 0;
-    final idade = int.tryParse(idadeController.text) ?? 0;
+  void handleCalcularCalorias() {
+    final peso = double.tryParse(_pesoController.text) ?? 0;
+    final altura = double.tryParse(_alturaController.text) ?? 0;
+    final idade = int.tryParse(_idadeController.text) ?? 0;
 
-    double tmb;
-
-    if (sexo == 'Masculino') {
-      tmb = 66 + (13.7 * peso) + (5 * altura) - (6.8 * idade);
-    } else {
-      tmb = 655 + (9.6 * peso) + (1.8 * altura) - (4.7 * idade);
+    if(peso <= 0 || altura <= 0 || idade <=0) {
+      setState(() {
+        _resultado = "Insira valores válidos!";
+      });
+      return;
     }
 
-    final calorias = tmb * atividade;
+    RegistroCalculoTMB registro = tmbVM.calcularTMB(peso, altura, idade, _sexo, _atividade);
 
     setState(() {
-      resultado = 'Você precisa de aproximadamente ${calorias.toStringAsFixed(0)} kcal/dia';
+      _resultado = 'Você precisa de aproximadamente ${registro.totalCalorias.toStringAsFixed(0)} kcal/dia';
     });
   }
 
@@ -48,21 +55,21 @@ class _CalorieViewState extends State<CalorieView> {
           children: [
             Icon(Icons.local_fire_department, size: 70, color: Colors.orange),
             SizedBox(height: 20),
-            buildTextField(pesoController, 'Peso (kg)', Icons.fitness_center),
+            buildTextField(_pesoController, 'Peso (kg)', Icons.fitness_center),
             SizedBox(height: 15),
-            buildTextField(alturaController, 'Altura (cm)', Icons.height),
+            buildTextField(_alturaController, 'Altura (cm)', Icons.height),
             SizedBox(height: 15),
-            buildTextField(idadeController, 'Idade (anos)', Icons.cake),
+            buildTextField(_idadeController, 'Idade (anos)', Icons.cake),
             SizedBox(height: 15),
             Row(
               children: [
                 Text('Sexo:', style: TextStyle(color: Colors.black54),),
                 SizedBox(width: 10),
-                DropdownButton<String>(
-                  value: sexo,
-                  onChanged: (value) => setState(() => sexo = value!),
-                  items: ['Masculino', 'Feminino']
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                DropdownButton<Sexo>(
+                  value: _sexo,
+                  onChanged: (value) => setState(() => _sexo = value ?? Sexo.masculino),
+                  items: Sexo.values
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s.descricao)))
                       .toList(),
                 ),
               ],
@@ -72,27 +79,20 @@ class _CalorieViewState extends State<CalorieView> {
               children: [
                 Text('Atividade:',style: TextStyle(color: Colors.black54),),
                 SizedBox(width: 10),
-                DropdownButton<double>(
-                  value: atividade,
-                  onChanged: (value) => setState(() => atividade = value!),
-                  items: [
-                    {'label': 'Sedentário', 'value': 1.2},
-                    {'label': 'Leve', 'value': 1.375},
-                    {'label': 'Moderado', 'value': 1.55},
-                    {'label': 'Intenso', 'value': 1.725},
-                    {'label': 'Muito Intenso', 'value': 1.9},
-                  ]
-                      .map((map) => DropdownMenuItem(
-                            value: map['value'] as double,
-                            child: Text(map['label'] as String),
-                          ))
-                      .toList(),
+                DropdownButton<Atividade>(
+                  value: _atividade,
+                  onChanged: (value) => setState(() => _atividade = value ?? Atividade.sedentario),
+                  items: Atividade.values.map(
+                          (a) => DropdownMenuItem(
+                            value: a,
+                            child: Text(a.descricao)
+                          )).toList(),
                 ),
               ],
             ),
             SizedBox(height: 25),
             ElevatedButton.icon(
-              onPressed: calcularCalorias,
+              onPressed: handleCalcularCalorias,
               icon: Icon(Icons.calculate),
               label: Text('Calcular Calorias'),
               style: ElevatedButton.styleFrom(
@@ -103,9 +103,9 @@ class _CalorieViewState extends State<CalorieView> {
               ),
             ),
             SizedBox(height: 30),
-            if (resultado.isNotEmpty)
+            if (_resultado.isNotEmpty)
               Text(
-                resultado,
+                _resultado,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange.shade800),
                 textAlign: TextAlign.center,
               ),

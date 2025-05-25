@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../calorie_view.dart';
+import '../caloria_view.dart';
 import '../food_view.dart';
 import '../imc_view.dart';
 
@@ -69,10 +69,10 @@ class HomeScreen extends StatelessWidget {
             ),
             _buildMenuButton(
               icon: Icons.local_fire_department,
-              title: 'Taxa Metabólica Basal',
+              title: 'Calculadora de Calorias',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => CalorieView()),
+                MaterialPageRoute(builder: (_) => CaloriaView()),
               ),
               color: Colors.orange.shade700,
             ),
