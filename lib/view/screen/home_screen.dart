@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../caloria_view.dart';
-import '../food_view.dart';
+import '../alimento_view.dart';
 import '../imc_view.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -81,7 +81,7 @@ class HomeScreen extends StatelessWidget {
               title: 'Histórico de Alimentos',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => FoodView()),
+                MaterialPageRoute(builder: (_) => AlimentoView()),
               ),
               color: Colors.brown.shade400,
             ),

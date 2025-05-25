@@ -5,5 +5,5 @@ class Alimento {
 
   Alimento({required this.nome, required this.quantidade, required this.caloriasPorUnidade});
 
-  double get totalCalories => quantidade * caloriasPorUnidade;
+  double get totalCalorias => quantidade * caloriasPorUnidade;
 }
