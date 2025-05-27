@@ -124,7 +124,7 @@ class _AlimentoViewState extends State<AlimentoView> {
                               child: const Icon(Icons.fastfood, color: Colors.white),
                             ),
                             title: Text(
-                              a.alimento.nome,
+                              '${a.alimento.nome} x${a.alimento.quantidade}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             subtitle: Padding(
