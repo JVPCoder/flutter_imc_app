@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_imc_app/view/screen/home_screen.dart';
+import 'package:flutter_imc_app/widget/auth_check.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -16,7 +16,7 @@ class App extends StatelessWidget {
           bodyMedium: TextStyle(fontSize: 16, color: Colors.white),
         ),
       ),
-      home: HomeScreen(),
+      home: AuthCheck(),
     );
   }
 }

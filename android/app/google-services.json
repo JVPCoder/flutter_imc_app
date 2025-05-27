@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "972157100006",
+    "project_id": "health-calc-48c30",
+    "storage_bucket": "health-calc-48c30.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972157100006:android:b873bf0103f1948a39c027",
+        "android_client_info": {
+          "package_name": "com.example.flutter_imc_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF7_lGzSSix3zgiqw2ge7ieOMUYtgbLTo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
