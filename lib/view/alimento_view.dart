@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../model/alimento.dart';
+import '../service/auth_service.dart';
+import '../repository/alimento_repository.dart';
 
 class AlimentoView extends StatefulWidget {
   const AlimentoView({super.key});
@@ -12,99 +15,143 @@ class _AlimentoViewState extends State<AlimentoView> {
   final nomeController = TextEditingController();
   final calController = TextEditingController();
   final qtdController = TextEditingController();
-  final List<Alimento> _alimentoList = [];
 
-  void adicionar() {
+  late AlimentoRepository _repo;
+
+  @override
+  void initState() {
+    super.initState();
+    final authService = Provider.of<AuthService>(context, listen: false);
+    _repo = AlimentoRepository(authService);
+  }
+
+  void adicionar() async {
     final nome = nomeController.text;
     final cal = double.tryParse(calController.text) ?? 0;
     final qtd = int.tryParse(qtdController.text) ?? 1;
 
     if (nome.isEmpty || cal <= 0 || qtd <= 0) return;
 
-    setState(() {
-      _alimentoList.add(Alimento(nome: nome, caloriasPorUnidade: cal, quantidade: qtd, dataInsercao: DateTime.now()));
-      nomeController.clear();
-      calController.clear();
-      qtdController.clear();
-    });
-  }
+    final alimento = Alimento(
+      nome: nome,
+      caloriasPorUnidade: cal,
+      quantidade: qtd,
+      dataInsercao: DateTime.now(),
+    );
 
-  double calcularTotal() {
-    return _alimentoList.fold(0, (soma, alimento) => soma + alimento.totalCalorias);
+    await _repo.adicionar(alimento);
+
+    nomeController.clear();
+    calController.clear();
+    qtdController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Histórico de Alimentos', style: TextStyle(fontWeight: FontWeight.bold),),
+        title: const Text('Histórico de Alimentos', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.brown.shade400,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Centralizar o ícone
             Center(
               child: Icon(Icons.fastfood, size: 70, color: Colors.brown.shade400),
             ),
-            SizedBox(height: 30), // Espaçamento entre ícone e inputs
+            const SizedBox(height: 30),
 
-            // Input Nome do Alimento
             buildTextField(nomeController, 'Nome do alimento', Icons.fastfood, false),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
 
-            // Input Calorias por unidade
             buildTextField(calController, 'Calorias por unidade', Icons.local_fire_department, true),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
 
-            // Input Quantidade
             buildTextField(qtdController, 'Quantidade', Icons.numbers, true),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
 
-            // Botão para adicionar alimento
             ElevatedButton.icon(
               onPressed: adicionar,
-              icon: Icon(Icons.add),
-              label: Text('Adicionar alimento'),
+              icon: const Icon(Icons.add),
+              label: const Text('Adicionar alimento'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.brown.shade400,
                 foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
-            SizedBox(height: 7),
+            const SizedBox(height: 25),
 
-            // Lista de alimentos
-            Expanded(
-              child: _alimentoList.isEmpty
-                  ? Center(child: Text('Nenhum alimento adicionado.', style: TextStyle(color: Colors.black),))
-                  : ListView.builder(
-                      itemCount: _alimentoList.length,
-                      itemBuilder: (_, i) {
-                        final a = _alimentoList[i];
+            StreamBuilder<List<AlimentoFirestore>>(
+              stream: _repo.getAlimentosStream(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final alimentos = snapshot.data!;
+
+                if (alimentos.isEmpty) {
+                  return const Center(child: Text('Nenhum alimento adicionado.'));
+                }
+
+                final total = alimentos.fold<double>(
+                  0,
+                      (sum, a) => sum + a.alimento.totalCalorias,
+                );
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: alimentos.length,
+                      itemBuilder: (context, i) {
+                        final a = alimentos[i];
                         return Card(
-                          elevation: 2,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           child: ListTile(
-                            title: Text('${a.nome} (${a.quantidade}x)'),
-                            subtitle: Text('${a.totalCalorias.toStringAsFixed(2)} kcal'),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            leading: CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.brown.shade300,
+                              child: const Icon(Icons.fastfood, color: Colors.white),
+                            ),
+                            title: Text(
+                              a.alimento.nome,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                '${a.alimento.totalCalorias.toStringAsFixed(2)} kcal',
+                                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                              ),
+                            ),
                             trailing: IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => setState(() => _alimentoList.removeAt(i)),
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                await _repo.remover(a.id);
+                              },
                             ),
                           ),
                         );
                       },
                     ),
-            ),
-            SizedBox(height: 1),
-
-            // Total de calorias consumidas
-            Text(
-              'Total consumido: ${calcularTotal().toStringAsFixed(2)} kcal',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                    const SizedBox(height: 15),
+                    Text(
+                      'Total consumido: ${total.toStringAsFixed(2)} kcal',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green.shade900),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -115,7 +162,7 @@ class _AlimentoViewState extends State<AlimentoView> {
   Widget buildTextField(TextEditingController controller, String label, IconData icon, bool number) {
     return TextField(
       controller: controller,
-      keyboardType: number ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+      keyboardType: number ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
