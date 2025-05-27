@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'health-calc-48c30.firebasestorage.app',
     measurementId: 'G-CDHBZEDZBS',
   );
+
 }

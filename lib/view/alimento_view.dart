@@ -22,7 +22,7 @@ class _AlimentoViewState extends State<AlimentoView> {
     if (nome.isEmpty || cal <= 0 || qtd <= 0) return;
 
     setState(() {
-      _alimentoList.add(Alimento(nome: nome, caloriasPorUnidade: cal, quantidade: qtd));
+      _alimentoList.add(Alimento(nome: nome, caloriasPorUnidade: cal, quantidade: qtd, dataInsercao: DateTime.now()));
       nomeController.clear();
       calController.clear();
       qtdController.clear();

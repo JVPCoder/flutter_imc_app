@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../service/auth_service.dart';
 import '../caloria_view.dart';
 import '../alimento_view.dart';
 import '../imc_view.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,12 +22,12 @@ class HomeScreen extends StatelessWidget {
         icon: Icon(icon, size: 26),
         label: Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: color ?? Colors.green,
           foregroundColor: Colors.white,
-          minimumSize: Size(double.infinity, 60),
+          minimumSize: const Size(double.infinity, 60),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
@@ -37,12 +39,31 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('JF HealthCalc', style: TextStyle(fontWeight: FontWeight.bold),),
+        title: const Text(
+          'JF HealthCalc',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () async {
+              await authService.logout();
+
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30),
@@ -57,13 +78,13 @@ class HomeScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             _buildMenuButton(
               icon: Icons.monitor_weight,
               title: 'Calculadora de IMC',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => IMCView()),
+                MaterialPageRoute(builder: (_) => const IMCView()),
               ),
               color: Colors.green.shade700,
             ),
@@ -72,7 +93,7 @@ class HomeScreen extends StatelessWidget {
               title: 'Calculadora de Calorias',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => CaloriaView()),
+                MaterialPageRoute(builder: (_) => const CaloriaView()),
               ),
               color: Colors.orange.shade700,
             ),
@@ -81,7 +102,7 @@ class HomeScreen extends StatelessWidget {
               title: 'Histórico de Alimentos',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => AlimentoView()),
+                MaterialPageRoute(builder: (_) => const AlimentoView()),
               ),
               color: Colors.brown.shade400,
             ),
