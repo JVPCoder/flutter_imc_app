@@ -5,7 +5,6 @@ class AlimentoCodigoBarrasFirestore {
   final double gorduras;
   final double acucares;
   final double proteinas;
-  final double sal;
   final DateTime dataInsercao;
 
   AlimentoCodigoBarrasFirestore({
@@ -15,7 +14,6 @@ class AlimentoCodigoBarrasFirestore {
     required this.gorduras,
     required this.acucares,
     required this.proteinas,
-    required this.sal,
     required this.dataInsercao,
   });
 
@@ -27,7 +25,6 @@ class AlimentoCodigoBarrasFirestore {
       gorduras: (data['gorduras'] as num?)?.toDouble() ?? 0.0,
       acucares: (data['acucares'] as num?)?.toDouble() ?? 0.0,
       proteinas: (data['proteinas'] as num?)?.toDouble() ?? 0.0,
-      sal: (data['sal'] as num?)?.toDouble() ?? 0.0,
       dataInsercao: DateTime.tryParse(data['dataInsercao'] ?? '') ?? DateTime.now(),
     );
   }
@@ -39,7 +36,6 @@ class AlimentoCodigoBarrasFirestore {
       'gorduras': gorduras,
       'acucares': acucares,
       'proteinas': proteinas,
-      'sal': sal,
       'dataInsercao': dataInsercao.toIso8601String(),
     };
   }

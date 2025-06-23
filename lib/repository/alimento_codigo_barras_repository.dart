@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../database/db_firestore.dart';
 import '../model/alimento_codigo_barras_firestore.dart';
 import '../service/auth_service.dart';
-import '../model/alimento.dart';
 
 class AlimentoCodigoBarrasRepository {
   final FirebaseFirestore _firestore = DBFirestore.get();

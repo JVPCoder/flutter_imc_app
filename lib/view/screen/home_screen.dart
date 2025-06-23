@@ -3,24 +3,22 @@ import 'dart:convert';
 import 'package:barcode_scan2/gen/protos/protos.pbenum.dart';
 import 'package:barcode_scan2/platform_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_imc_app/model/alimento.dart';
 import 'package:flutter_imc_app/model/alimento_codigo_barras_firestore.dart';
+import 'package:flutter_imc_app/repository/alimento_codigo_barras_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../service/auth_service.dart';
 import '../caloria_view.dart';
 import '../alimento_view.dart';
 import '../imc_view.dart';
+import 'historico_codigo_barras_page.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  String _calcularNutriScore({
-    required double calorias100g,
-    required double acucares100g,
-    required double gorduras100g,
-    required double proteinas100g,
-  }) {
+  String _calcularNutriScore({required double calorias100g,required double acucares100g,required double gorduras100g,required double proteinas100g,}) {
     int pontosNegativos = 0;
     int pontosPositivos = 0;
 
@@ -113,7 +111,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _scanAndShowInfo(BuildContext context) async {
+  Future<void> _scanAndShowInfo(BuildContext context, AlimentoCodigoBarrasRepository repository) async {
     try {
       var result = await BarcodeScanner.scan();
 
@@ -131,20 +129,25 @@ class HomeScreen extends StatelessWidget {
           final produto = data['product'];
           final nutriments = produto['nutriments'] ?? {};
 
-          final nome = produto['product_name'] ?? 'Produto desconhecido';
-          final calorias100g = (nutriments['energy-kcal_100g'] ?? 0).toDouble();
-          final gorduras100g = (nutriments['fat_100g'] ?? 0).toDouble();
-          final acucares100g = (nutriments['carbohydrates_100g'] ?? 0).toDouble();
-          final proteinas100g = (nutriments['proteins_100g'] ?? 0).toDouble();
+          AlimentoCodigoBarrasFirestore alimento = AlimentoCodigoBarrasFirestore(
+              id: "",
+              nome: produto['product_name'] ?? 'Produto desconhecido',
+              calorias: (nutriments['energy-kcal_100g'] ?? 0).toDouble(),
+              gorduras: (nutriments['fat_100g'] ?? 0).toDouble(),
+              acucares: (nutriments['carbohydrates_100g'] ?? 0).toDouble(),
+              proteinas: (nutriments['proteins_100g'] ?? 0).toDouble(),
+              dataInsercao: DateTime.now()
+          );
 
           final score = _calcularNutriScore(
-            calorias100g: calorias100g,
-            acucares100g: acucares100g,
-            gorduras100g: gorduras100g,
-            proteinas100g: proteinas100g,
+            calorias100g: alimento.calorias,
+            acucares100g: alimento.acucares,
+            gorduras100g: alimento.gorduras,
+            proteinas100g: alimento.proteinas,
           );
 
           final cor = _corNutriScore(score);
+          await repository.adicionar(alimento);
 
           showModalBottomSheet(
             context: context,
@@ -170,7 +173,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    nome,
+                    alimento.nome,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -178,10 +181,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow('Calorias (100g)', '${calorias100g.toStringAsFixed(1)} kcal'),
-                  _buildInfoRow('Açúcares (100g)', '${acucares100g.toStringAsFixed(1)} g'),
-                  _buildInfoRow('Gorduras (100g)', '${gorduras100g.toStringAsFixed(1)} g'),
-                  _buildInfoRow('Proteínas (100g)', '${proteinas100g.toStringAsFixed(1)} g'),
+                  _buildInfoRow('Calorias (100g)', '${alimento.calorias.toStringAsFixed(1)} kcal'),
+                  _buildInfoRow('Açúcares (100g)', '${alimento.acucares.toStringAsFixed(1)} g'),
+                  _buildInfoRow('Gorduras (100g)', '${alimento.gorduras.toStringAsFixed(1)} g'),
+                  _buildInfoRow('Proteínas (100g)', '${alimento.proteinas.toStringAsFixed(1)} g'),
                   const SizedBox(height: 20),
                   Row(
                     children: [
@@ -278,13 +281,27 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
+    final AlimentoCodigoBarrasRepository _repository = AlimentoCodigoBarrasRepository(authService);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('JF HealthCalc', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'JF HealthCalc',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.history),
+          tooltip: 'Histórico de escaneamentos',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HistoricoCodigoBarrasPage()),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -299,6 +316,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30),
         child: Column(
@@ -344,7 +362,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _scanAndShowInfo(context),
+        onPressed: () => _scanAndShowInfo(context, _repository),
         tooltip: 'Escanear código de barras',
         backgroundColor: Colors.green,
         child: Icon(Icons.qr_code_scanner),
